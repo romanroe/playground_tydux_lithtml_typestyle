@@ -1,0 +1,35 @@
+{
+  "name": "playground_tydux_lithtml_typestyle",
+  "version": "0.0.1",
+  "license": "Apache-2.0",
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@w11k/tydux": "8.3.1",
+    "es6-shim": "0.35.3",
+    "lit-html": "0.11.0",
+    "rxjs": "6.2.2",
+    "typestyle": "2.0.1"
+  },
+  "peerDependencies": {},
+  "devDependencies": {
+    "@types/es6-shim": "0.31.35",
+    "awesome-typescript-loader": "3.4.1",
+    "del-cli": "1.1.0",
+    "extract-loader": "1.0.2",
+    "file-loader": "1.1.6",
+    "html-loader": "0.5.5",
+    "source-map-support": "0.5.3",
+    "ts-node": "4.1.0",
+    "tslint": "5.11.0",
+    "typescript": "3.0.1",
+    "webpack": "3.10.0",
+    "webpack-dev-server": "2.11.1"
+  },
+  "scripts": {
+    "clean": "del-cli dist",
+    "dist": "npm run clean && webpack",
+    "serve": "webpack-dev-server --config webpack.config.js"
+  }
+}
