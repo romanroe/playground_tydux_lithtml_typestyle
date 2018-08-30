@@ -1,17 +1,15 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "moduleResolution": "node",
     "allowJs": false,
     "declaration": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "module": "commonjs",
-    "moduleResolution": "node",
     "noEmitOnError": false,
-    "noImplicitAny": true,
     "strict": true,
-    "noImplicitThis": true,
-    "noImplicitReturns": true,
     "skipLibCheck": true,
     "typeRoots": [
       "node_modules/@types"
@@ -24,7 +22,6 @@
       "dom"
     ],
     "rootDir": "src",
-    "target": "es6",
     "outDir": "dist"
   },
   "include": [

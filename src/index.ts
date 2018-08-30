@@ -1,7 +1,9 @@
-import {Mutator, Store} from "@w11k/tydux";
+import {enableTyduxDevelopmentMode, Mutator, Store} from "@w11k/tydux";
 import {globalStateChanges$} from "@w11k/tydux/dist/global-state";
 import {html, render} from "lit-html";
 import {style} from "typestyle";
+
+enableTyduxDevelopmentMode();
 
 
 class MyState {
@@ -30,7 +32,11 @@ const cssBlue = style({backgroundColor: "blue"});
 const cssDefault = style({fontWeight: "bold"});
 
 const getCss = (color: string) => {
-    return color === "red" ? cssRed : color === "blue" ? cssBlue : cssDefault;
+    return color === "red"
+        ? cssRed
+        : color === "blue"
+            ? cssBlue
+            : cssDefault;
 };
 
 /**
