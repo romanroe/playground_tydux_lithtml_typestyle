@@ -3,6 +3,7 @@ var path = require("path");
 var ats = require('awesome-typescript-loader');
 
 module.exports = {
+    mode: "production",
     entry: {
         index: path.resolve(__dirname, "src", "index.ts")
     },
