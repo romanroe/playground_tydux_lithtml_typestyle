@@ -60,21 +60,21 @@ const getLabelCssClass = (inputValue: string) => {
 // ============================================================================
 
 /**
- * display text with the current background color
+ * display text with the passed cssClass
  */
 const createInputLabel = (cssClass: string) => html`
     <span class="${cssClass}">New Todo:</span>
 `;
 
 /**
- * create an <input> to set the background color
+ * create an <input>
  */
 const createInputField = (value: string, onInput: (value: string) => void) => html`
     <input .value="${value}" @input="${(e: Event) => onInput((e.target as any).value)}">
 `;
 
 /**
- * create a <button> to add a new todoEntry
+ * create a <button>
  */
 const createAddTodoButton = (onClick: () => void) => html`
     <button @click="${onClick}">add</button>
