@@ -62,7 +62,7 @@ const getLabelCssClass = (inputValue: string) => {
 /**
  * <div> to enter new todos
  */
-const eNewTodoDiv = (value: string,
+const newTodoDivElement = (value: string,
                      onInput: (value: string) => void,
                      onClick: () => void) => html`
 
@@ -76,20 +76,20 @@ const eNewTodoDiv = (value: string,
 /**
  * display the passed todos as <ul>
  */
-const eTodoList = (todos: string[]) => html`
+const displayTodoListUlElement = (todos: string[]) => html`
     <ul>
         ${todos.map(t => html`<li>${t}</li>`)}
     </ul>
 `;
 
 // ============================================================================
-// body: mediator between store and elements
+// todoComponent: mediator between store and elements
 // ============================================================================
 
-const mBody = (store: TodoStore) => html`
+const todoComponent = (store: TodoStore) => html`
     <h1>Todos</h1>
-    ${eNewTodoDiv(store.state.newTodoInput, v => store.assignNewTodoInput(v), () => store.addTodo())}
-    ${eTodoList(store.state.todos)}
+    ${newTodoDivElement(store.state.newTodoInput, v => store.assignNewTodoInput(v), () => store.addTodo())}
+    ${displayTodoListUlElement(store.state.todos)}
 `;
 
 // ============================================================================
@@ -99,5 +99,5 @@ const mBody = (store: TodoStore) => html`
 const todoStore = new TodoStore("TodoStore", new TodoMutator(), new TodoState());
 
 globalStateChanges$.subscribe(() => {
-    return render(mBody(todoStore), document.body);
+    return render(todoComponent(todoStore), document.body);
 });
