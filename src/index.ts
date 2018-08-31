@@ -56,7 +56,7 @@ const getLabelCssClass = (inputValue: string) => {
 };
 
 // ============================================================================
-// page elements
+// page elements: pure functions, no nothing about the store
 // ============================================================================
 
 /**
