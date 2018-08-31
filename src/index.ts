@@ -63,8 +63,8 @@ const getLabelCssClass = (inputValue: string) => {
  * <div> to enter new todos
  */
 const newTodoDivElement = (value: string,
-                     onInput: (value: string) => void,
-                     onClick: () => void) => html`
+                           onInput: (value: string) => void,
+                           onClick: () => void) => html`
 
     <div>      
         <span class="${getLabelCssClass(value)}">New Todo:</span>
