@@ -56,51 +56,40 @@ const getLabelCssClass = (inputValue: string) => {
 };
 
 // ============================================================================
-// page elements: pure functions, no nothing about the store
+// elements: pure functions, no nothing about the store
 // ============================================================================
 
 /**
- * display text with the passed cssClass
+ * <div> to enter new todos
  */
-const createInputLabel = (cssClass: string) => html`
-    <span class="${cssClass}">New Todo:</span>
-`;
+const eNewTodoDiv = (value: string,
+                     onInput: (value: string) => void,
+                     onClick: () => void) => html`
 
-/**
- * create an <input>
- */
-const createInputField = (value: string, onInput: (value: string) => void) => html`
-    <input .value="${value}" @input="${(e: Event) => onInput((e.target as any).value)}">
-`;
-
-/**
- * create a <button>
- */
-const createAddTodoButton = (onClick: () => void) => html`
-    <button @click="${onClick}">add</button>
-`;
-
-/**
- * creates an <li>
- */
-const createTodoListEntry = (todo: string) => html`
-    <li>${todo}</li>
-`;
-
-// ============================================================================
-// body: mediator between store and page elements
-// ============================================================================
-
-const body = (store: TodoStore) => html`
-    <h1>Todos</h1>
-    <div>
-        ${createInputLabel(getLabelCssClass(store.state.newTodoInput))}
-        ${createInputField(store.state.newTodoInput, value => store.assignNewTodoInput(value))}
-        ${createAddTodoButton(() => store.addTodo())}
+    <div>      
+        <span class="${getLabelCssClass(value)}">New Todo:</span>
+        <input .value="${value}" @input="${(e: Event) => onInput((e.target as any).value)}">
+        <button @click="${onClick}">add</button>
     </div>
+`;
+
+/**
+ * display the passed todos as <ul>
+ */
+const eTodoList = (todos: string[]) => html`
     <ul>
-        ${store.state.todos.map(createTodoListEntry)}
+        ${todos.map(t => html`<li>${t}</li>`)}
     </ul>
+`;
+
+// ============================================================================
+// body: mediator between store and elements
+// ============================================================================
+
+const mBody = (store: TodoStore) => html`
+    <h1>Todos</h1>
+    ${eNewTodoDiv(store.state.newTodoInput, v => store.assignNewTodoInput(v), () => store.addTodo())}
+    ${eTodoList(store.state.todos)}
 `;
 
 // ============================================================================
@@ -110,5 +99,5 @@ const body = (store: TodoStore) => html`
 const todoStore = new TodoStore("TodoStore", new TodoMutator(), new TodoState());
 
 globalStateChanges$.subscribe(() => {
-    return render(body(todoStore), document.body);
+    return render(mBody(todoStore), document.body);
 });
