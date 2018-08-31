@@ -5,65 +5,110 @@ import {style} from "typestyle";
 
 enableTyduxDevelopmentMode();
 
+// ============================================================================
+// store with Tydux
+// ============================================================================
 
-class MyState {
-    bgColorInput = "red";
+class TodoState {
+
+    newTodoInput = "";
+
+    todos: string[] = [];
 }
 
-class MyMutator extends Mutator<MyState> {
-    assignBgColor(color: string) {
-        this.state.bgColorInput = color;
+class TodoMutator extends Mutator<TodoState> {
+
+    assignNewTodoInput(input: string) {
+        this.state.newTodoInput = input;
+    }
+
+    pushTodo(todo: string) {
+        this.state.todos = [
+            ...this.state.todos,
+            todo
+        ];
     }
 }
 
-class MyStore extends Store<MyMutator, MyState> {
-    assignBgColor(color: string) {
-        this.mutate.assignBgColor(color);
+class TodoStore extends Store<TodoMutator, TodoState> {
+
+    assignNewTodoInput(input: string) {
+        this.mutate.assignNewTodoInput(input);
+    }
+
+    addTodo() {
+        this.mutate.pushTodo(this.state.newTodoInput.trim());
+        this.mutate.assignNewTodoInput("");
     }
 }
 
-const myStore = new MyStore("MyStore", new MyMutator(), new MyState());
 
-/**
- * create CSS class with TypeStyle
- */
-const cssRed = style({backgroundColor: "red"});
-const cssBlue = style({backgroundColor: "blue"});
-const cssDefault = style({fontWeight: "bold"});
+// ============================================================================
+// CSS with TypeStyle
+// ============================================================================
 
-const getCss = (color: string) => {
-    return color === "red"
-        ? cssRed
-        : color === "blue"
-            ? cssBlue
-            : cssDefault;
+const cssLabelWarning = style({color: "red"});
+
+const cssLabelNormal = style({color: "green"});
+
+const getLabelCssClass = (inputValue: string) => {
+    return inputValue.trim().length === 0 ? cssLabelWarning : cssLabelNormal;
 };
 
-/**
- * create an input element to set the background color
- */
-// language=HTML
-const createColorInput = () => html`
-    <input .value="${myStore.state.bgColorInput}" @input="${(e: Event) => myStore.assignBgColor((e.target as any).value)}">
-`;
+// ============================================================================
+// page elements
+// ============================================================================
 
 /**
  * display text with the current background color
  */
-// language=HTML
-const createStyledLabel = (label: string) => html`
-    <span class="${getCss(myStore.state.bgColorInput)}">${label}</span>
+const createInputLabel = (cssClass: string) => html`
+    <span class="${cssClass}">New Todo:</span>
 `;
 
 /**
- * page
+ * create an <input> to set the background color
  */
-// language=HTML
-const body = () => html`
-    <h1>Demo</h1>
-    <div>${createColorInput()}</div>
-    <div>Active color: ${createStyledLabel(myStore.state.bgColorInput)}</div>
+const createInputField = (value: string, onInput: (value: string) => void) => html`
+    <input .value="${value}" @input="${(e: Event) => onInput((e.target as any).value)}">
 `;
 
-// render & update
-globalStateChanges$.subscribe(() => render(body(), document.body));
+/**
+ * create a <button> to add a new todoEntry
+ */
+const createAddTodoButton = (onClick: () => void) => html`
+    <button @click="${onClick}">add</button>
+`;
+
+/**
+ * creates an <li>
+ */
+const createTodoListEntry = (todo: string) => html`
+    <li>${todo}</li>
+`;
+
+// ============================================================================
+// body: mediator between store and page elements
+// ============================================================================
+
+const body = (store: TodoStore) => html`
+    <h1>Todos</h1>
+    <div>
+        ${createInputLabel(getLabelCssClass(store.state.newTodoInput))}
+        ${createInputField(store.state.newTodoInput, value => store.assignNewTodoInput(value))}
+        ${createAddTodoButton(() => store.addTodo())}
+    </div>
+    <ul>
+        ${store.state.todos.map(createTodoListEntry)}
+    </ul>
+`;
+
+// ============================================================================
+// init & render & update
+// ============================================================================
+
+const todoStore = new TodoStore("TodoStore", new TodoMutator(), new TodoState());
+
+globalStateChanges$.subscribe(() => {
+    return render(body(todoStore), document.body);
+});
