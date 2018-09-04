@@ -1,14 +1,14 @@
+import {Mutator, Store} from "@w11k/tydux";
+import {html, TemplateResult} from "lit-html";
+
 // ============================================================================
 // store with Tydux
 // ============================================================================
 
-import {Mutator, Store} from "@w11k/tydux";
-import {html} from "lit-html";
-import {listComponent} from "./list";
-
 export interface Todo {
     id: number;
     description: string;
+    dueDate: Date;
 }
 
 export class TodoState {
@@ -24,6 +24,10 @@ export class TodoMutator extends Mutator<TodoState> {
         this.state.newTodoInput = input;
     }
 
+    assignTodoList(todos: Todo[]) {
+        this.state.todos = todos;
+    }
+
     pushTodo(todo: Todo) {
         this.state.todos = [
             ...this.state.todos,
@@ -36,6 +40,23 @@ export class TodoStore extends Store<TodoMutator, TodoState> {
 
     private todoIdCounter = 0;
 
+    constructor() {
+        super("TodoStore", new TodoMutator(), new TodoState());
+        this.createTestTodos();
+    }
+
+    private createTestTodos() {
+        const todos: Todo[] = [];
+        for (let i = 0; i <= 3; i++) {
+            todos.push({
+                id: this.todoIdCounter++,
+                description: "A test TODO: " + Math.random() + " do something",
+                dueDate: new Date()
+            });
+        }
+        this.mutate.assignTodoList(todos);
+    }
+
     assignNewTodoInput(input: string) {
         this.mutate.assignNewTodoInput(input);
     }
@@ -44,7 +65,11 @@ export class TodoStore extends Store<TodoMutator, TodoState> {
         if (!isNewTodoInputValid(this.state.newTodoInput)) {
             return;
         }
-        this.mutate.pushTodo({id: this.todoIdCounter++, description: this.state.newTodoInput.trim()});
+        this.mutate.pushTodo({
+            id: this.todoIdCounter++,
+            description: this.state.newTodoInput.trim(),
+            dueDate: new Date()
+        });
         this.mutate.assignNewTodoInput("");
     }
 }
@@ -57,8 +82,8 @@ export function isNewTodoInputValid(value: string) {
 // main component
 // ============================================================================
 
-export const mainComponent = (store: TodoStore) => html`
+export const todoComponent = (outlet: () => TemplateResult) => html`
     <h1>Todos</h1>
-    ${listComponent(store)}
+    ${outlet()}
 `;
 

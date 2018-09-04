@@ -1,37 +1,62 @@
-import createRouter from "router5";
-import {SubscribeState} from "router5/core/observable";
+import {Mutator, Store} from "@w11k/tydux";
+import {html, TemplateResult} from "lit-html";
+import createRouter, {Router, SubscribeState} from "router5";
+import {State} from "router5/create-router";
 import browserPlugin from "router5/plugins/browser";
-import loggerPlugin from "router5/plugins/logger";
-import {from} from "rxjs";
-import {map} from "rxjs/operators";
 
-const routes = [
-    {name: "home", path: "/"},
-    {name: "profile", path: "/profile"}
-];
+export class RouterMutator extends Mutator<State> {
+    setRouterState(state: State) {
+        this.state = state;
+    }
+}
 
-const router = createRouter(routes, {
-    defaultRoute: "home"
-})
-    .usePlugin(loggerPlugin)
-    .usePlugin(browserPlugin({
-        useHash: true
-    }));
+export type CreateOutletFn = (...routes: [string, string, () => TemplateResult][]) => () => TemplateResult;
 
+export class RouterStore extends Store<RouterMutator, State> {
 
-from(router).pipe(
-    map((route) => {
-        console.log("route obs", route)
-    })
-);
+    private readonly router: Router;
 
-router.subscribe((state: SubscribeState) => {
-    console.log("state", state);
-});
+    private readonly routeNameToComponent: {[name: string]: () => TemplateResult} = {};
 
+    readonly createOutlet: CreateOutletFn = (...routes: [string, string, () => TemplateResult][]) => {
+        for (let route of routes) {
+            this.router.addNode(route[0], route[1]);
+            this.routeNameToComponent[route[0]] = route[2];
+        }
 
-router.start("home").subscribe((state) => {
-	console.log("state2", state);
-});
+        this.router.stop();
+        this.router.start();
 
-console.log("router done");
+        return () => {
+            if (this.router.getState() === null) {
+                return html`no router state`;
+            }
+
+            const matchingComponent = this.routeNameToComponent[this.router.getState().name];
+            if (matchingComponent === null) {
+                return html`no matching route`;
+            }
+
+            return matchingComponent();
+        }
+    };
+
+    constructor() {
+        super("RouterState", new RouterMutator(), {} as any);
+
+        this.router = createRouter([], {
+            // defaultRoute: "list"
+        })
+            .usePlugin(browserPlugin({
+                useHash: true
+            }));
+
+        this.router.subscribe((state: SubscribeState) => {
+            this.mutate.setRouterState(state.route);
+        });
+
+        this.router.start();
+    }
+
+}
+

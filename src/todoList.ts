@@ -1,6 +1,9 @@
-import {html} from "lit-html";
+import {Store} from "@w11k/tydux";
+import {directive, html, TemplateResult} from "lit-html";
+import {guard} from "lit-html/directives/guard";
+import {repeat} from "lit-html/directives/repeat";
 import {style} from "typestyle";
-import {isNewTodoInputValid, Todo, TodoStore} from "./main";
+import {isNewTodoInputValid, Todo, TodoStore} from "./todoMain";
 
 
 // ============================================================================
@@ -33,13 +36,30 @@ const newTodoDivElement = (value: string,
 `;
 
 /**
- * display the passed todos as <ul>
+ * display the passed todos as <table>
  */
-const displayTodoListUlElement = (todos: Todo[]) => html`
-    <ul>
-        ${todos.map(t => html`<li>${t.id} - ${t.description}</li>`)}
-    </ul>
+const todoListTableElement = (todos: Todo[]) => html`
+    <table>
+        ${repeat(todos, t => t.id, todoTableRowElement)}
+    </table>
 `;
+
+/**
+ * generate a <tr>
+ */
+const todoTableRowElement = (todo: Todo) => html`
+    <tr>
+        <td>${todo.id}</td>
+        <td>${todo.description}</td>
+        <td>${dateDisplayElement(todo.dueDate)}</td>
+    </tr>
+`;
+
+const dateDisplayElement = (date: Date) => {
+    return html`
+        <span>${date.getFullYear()}-${date.getMonth()}-${date.getDay()}</span>
+    `;
+};
 
 // ============================================================================
 // todoComponent: mediator between store and elements
@@ -49,6 +69,5 @@ export const listComponent = (store: TodoStore) => html`
     <h2>Todo list</h2>
     
     ${newTodoDivElement(store.state.newTodoInput, v => store.assignNewTodoInput(v), () => store.addTodo()) }
-        
-    ${displayTodoListUlElement(store.state.todos)}
+    ${guard(store.state.todos, () => todoListTableElement(store.state.todos))}
 `;
